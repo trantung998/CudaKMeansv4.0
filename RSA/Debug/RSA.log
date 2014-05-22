@@ -1,0 +1,25 @@
+﻿Build started 5/18/2014 6:21:33 PM.
+     1>Project "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\RSA\RSA.vcxproj" on node 3 (Build target(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\RSA.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\RSA.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\RSA.lib" /MACHINE:X86 Debug\kernel.cu.obj
+         Debug\BigInt.obj
+         Debug\Key.obj
+         Debug\KeyPair.obj
+         Debug\main.obj
+         Debug\PrimeGenerator.obj
+         Debug\RSA.obj
+         Debug\test.obj
+         RSA.vcxproj -> C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\RSA.exe
+       PostBuildEvent:
+         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         :VCEnd
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart32_55.dll
+         C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart64_55.dll
+                 2 file(s) copied.
+     1>Done Building Project "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\RSA\RSA.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.16
