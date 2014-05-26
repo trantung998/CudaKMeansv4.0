@@ -1,17 +1,17 @@
-﻿Build started 5/22/2014 11:58:02 PM.
-     1>Project "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\ImageProcess\ImageProcess.vcxproj" on node 2 (Build target(s)).
+﻿Build started 5/25/2014 10:44:53 PM.
+     1>Project "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\ImageProcess\ImageProcess.vcxproj" on node 2 (Build target(s)).
      1>AddCudaCompileDeps:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I. /FIcuda_runtime.h /c "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\ImageProcess\kernel.cu" 
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I. /FIcuda_runtime.h /c "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\ImageProcess\kernel.cu" 
        CudaBuild:
          Compiling CUDA source file kernel.cu...
-         cmd.exe /C "C:\Users\Tran\AppData\Local\Temp\tmpbf1e14fa2d7f4f3390443be3a5d8226b.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\ImageProcess\kernel.cu"
+         cmd.exe /C "C:\Users\Tran\AppData\Local\Temp\tmp438a6bce4f444e95ab59955cd2c1ed72.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\ImageProcess\kernel.cu"
          
-         C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\ImageProcess>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\ImageProcess\kernel.cu" 
+         C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\ImageProcess>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\ImageProcess\kernel.cu" 
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(3846): warning : statement is unreachable
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning : variable "hr" was declared but never referenced
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning : variable "hg" was declared but never referenced
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning : variable "hb" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning : variable "hr" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning : variable "hg" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning : variable "hb" was declared but never referenced
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(19900): warning : statement is unreachable
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(20137): warning : statement is unreachable
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(20203): warning : statement is unreachable
@@ -59,33 +59,36 @@
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(41049): warning : statement is unreachable
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(44659): warning : statement is unreachable
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\CImg.h(45555): warning : statement is unreachable
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning : variable "hr" was declared but never referenced
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning : variable "hg" was declared but never referenced
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning : variable "hb" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning : variable "hr" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning : variable "hg" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning : variable "hb" was declared but never referenced
      1>c:\users\tran\documents\visual studio 2012\projects\cudakmeansv4.0\imageprocess\filter.h(14): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(82): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(93): warning C4018: '<' : signed/unsigned mismatch
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(94): warning C4018: '<' : signed/unsigned mismatch
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(124): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(141): warning C4018: '<' : signed/unsigned mismatch
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(142): warning C4018: '<' : signed/unsigned mismatch
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning C4101: 'hg' : unreferenced local variable
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning C4101: 'hb' : unreferenced local variable
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(163): warning C4101: 'hr' : unreferenced local variable
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(85): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(99): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(100): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(130): warning C4244: 'argument' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(165): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(166): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(169): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(170): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(226): warning C4244: '=' : conversion from 'double' to 'UCHAR', possible loss of data
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning C4101: 'hg' : unreferenced local variable
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning C4101: 'hb' : unreferenced local variable
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/ImageProcess/kernel.cu(204): warning C4101: 'hr' : unreferenced local variable
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.lib" /MACHINE:X86 Debug\kernel.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.lib" /MACHINE:X86 Debug\kernel.cu.obj
          Debug\fadeImage.obj
-         ImageProcess.vcxproj -> C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.exe
+         ImageProcess.vcxproj -> C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\ImageProcess.exe
        PostBuildEvent:
-         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\"
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
          :VCEnd
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart32_55.dll
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart64_55.dll
                  2 file(s) copied.
-     1>Done Building Project "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\ImageProcess\ImageProcess.vcxproj" (Build target(s)).
+     1>Done Building Project "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\ImageProcess\ImageProcess.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:44.18
+Time Elapsed 00:00:48.88
