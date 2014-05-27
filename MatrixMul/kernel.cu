@@ -43,7 +43,6 @@ void matMulCPU(float *a,float *b, float *c, UINT rA,UINT cA,UINT rB, UINT cB)
 			sum = 0;
 		}
 	}
-
 }
 __global__ void matMulGPU_kernel(float *a,float *b, float *c, UINT rA,UINT cA,UINT rB, UINT cB)
 {
@@ -192,6 +191,6 @@ int main(int argc, char *argv[])
 	cudaFreeHost(h_b);
 	cudaFreeHost(h_c);
 	cudaFreeHost(h_c1);
-	getchar();
+	//getchar();
     return 0;
 }
