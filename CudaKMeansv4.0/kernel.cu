@@ -10,28 +10,14 @@
 #include <helper_functions.h>
 #include <device_functions.h>
 #include <device_launch_parameters.h>
-
-
 #include "TestClass.h"
 #include "KMean.h"
 using namespace std;
-#define RANGE 16;
 //size of data set
 #define nObj		1024		
 #define nDim		1024	
-#define nClus   	2048
-
-//float* initData(int m, int n)
-//{
-//    float* arr;
-//    checkCudaErrors(cudaMallocHost(&arr, m*n*sizeof(float), cudaHostAllocDefault));
-//    for (int i = 0; i < m; ++i)
-//        for (int j = 0; j < n; ++j)
-//        {
-//            arr[j*m + i] = i + j + rand()%100/(float)3;
-//        }
-//    return arr;
-//}
+#define nClus   	1024
+#define RANGE       16
 /*
 	get the next pow of 2
 	reference in cuda reduction
@@ -40,7 +26,6 @@ using namespace std;
 */
 int nextPowerOfTwo(int n) {
     n--;
-
     n = n >>  1 | n;
     n = n >>  2 | n;
     n = n >>  4 | n;
@@ -48,7 +33,6 @@ int nextPowerOfTwo(int n) {
     n = n >> 16 | n;
     return ++n;
 }
-/*Checked*/ //lv1
 
 __host__ __device__ 
 float euclid_distance(
@@ -103,7 +87,7 @@ __global__ static void compute_distance_v2(
 		{
 			if ((ROW < numObj)&& (m*BLOCK_SIZE + ty)< numDims) 
 			{
-					sA[tx][ty]  =  d_a[ROW*numDims +(BLOCK_SIZE*m + ty)];
+				sA[tx][ty]  =  d_a[ROW*numDims +(BLOCK_SIZE*m + ty)];
 			}
 			else sA[tx][ty]  = 0;
 
@@ -203,8 +187,6 @@ void compute_change(int *deviceMemberChange,
 {
 
     extern __shared__ unsigned int shareMemory[];
-
-    //global to shared memory.
     shareMemory[threadIdx.x] = (threadIdx.x < size) ? deviceMemberChange[threadIdx.x] : 0;
     __syncthreads();
 
@@ -217,12 +199,6 @@ void compute_change(int *deviceMemberChange,
     if (threadIdx.x == 0) deviceMemberChange[0] = shareMemory[0];
 }
 __global__
-void update_cluster_v2( float* d_Data, int *d_Member, float *d_Cluster,
-						int numObj,	int numDim, int numClus)
-{
-
-}
-__global__
 void update_cluster(float* d_Data		, int* d_Member		, float* d_Cluster
                     , const int nCoords	, const int nObjs	, const int nClusters
                     , const int rowPerThread, const int colPerThread)
@@ -232,7 +208,6 @@ void update_cluster(float* d_Data		, int* d_Member		, float* d_Cluster
         int c = cIdx * gridDim.y * blockDim.y + blockIdx.y * blockDim.y + threadIdx.y;
 		if (c >= nCoords)
             break;
-        
         for (int rIdx = 0; rIdx < rowPerThread; ++rIdx)
         {
             int r = rIdx * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x;
@@ -256,92 +231,79 @@ void update_cluster(float* d_Data		, int* d_Member		, float* d_Cluster
 }
 
 int kMeans(
-                   float  *d_Data,			/* in: [numObjs][numDims] */
-                   int     numDims,			/* no. features */
-                   int     numObjs,			/* no. objects */
-                   int     numClusters,		/* no. clusters */
-                   float   threshold,		/* % objects change membership */
-                   int     maxLoop,			/* maximum number of loops */
-                   int    *h_Member,		/* out: [numObjs] */
-                   float  *d_Cluster)
+        float  *d_Data,			
+        int     numDims,			
+        int     numObjs,			
+        int     numClusters,		
+        float   threshold,		
+        int     maxLoop,			
+        int    *h_Member,
+        float  *d_Cluster)
 {
     int		 loop = 0;
     float    delta;          /* % of objects change their clusters */
+
     int		*d_Member;
     int		*d_MemberChange;
 	float   *d_Distance;
     
-	if(!d_Cluster) 
-	{
-		printf("deviceClusters cannot be NULL");
-	}
 	/*Setup thread 4 find_nearest_cluster */
 	unsigned int numThreadsPerClusterBlock		= 128;
 	unsigned int numClusterBlocks				=  (unsigned int)ceil((numObjs / (float)numThreadsPerClusterBlock));
-	printf("numClusterBlocks :%d\n",numClusterBlocks);
-
 	unsigned int clusterBlockSharedDataSize =    numThreadsPerClusterBlock * sizeof(unsigned char) ;
 	
 	cudaDeviceProp deviceProp;
     int deviceNum;
     cudaGetDevice(&deviceNum);
     cudaGetDeviceProperties(&deviceProp, deviceNum);
-
     if (clusterBlockSharedDataSize > deviceProp.sharedMemPerBlock) {
 		printf("%d , %d\n",clusterBlockSharedDataSize,deviceProp.sharedMemPerBlock);
         printf("WARNING: CUDA hardware has insufficient block shared memory.\n");
-		getchar();
+		exit(1);
 	}
-	
-
-
+	/* Setup thread 4 compute_change */
     unsigned int numReductionThreads			= nextPowerOfTwo(numClusterBlocks);
     unsigned int reductionBlockSharedDataSize	= numReductionThreads * sizeof(unsigned int);
-
 	checkCudaErrors(cudaMalloc((void**)&d_Member, numObjs*sizeof(int)));
 	checkCudaErrors(cudaMalloc((void**)&d_MemberChange, numReductionThreads*sizeof(unsigned int)));
-	checkCudaErrors(cudaMalloc((void**)&d_Distance, nObj*nClus*sizeof(float)));
+	checkCudaErrors(cudaMalloc((void**)&d_Distance, numObjs*numClusters*sizeof(float)));
 
-    // initialize membership[]
 	checkCudaErrors(cudaMemcpy(d_Member, h_Member, numObjs*sizeof(int), cudaMemcpyHostToDevice));
-    //init Cluster
-
-	
     dim3 szGrid, szBlock;
     int rowPerThread , colPerThread;
 	rowPerThread = 1;
 	colPerThread = 1;
 	
-	szBlock.x = (nObj < 32)?nObj:32;	
-	szBlock.y = (nDim<16)?nDim:16;		
+	szBlock.x = (numObjs < 32)?numObjs:32;	
+	szBlock.y = (numDims<16)?numDims:16;		
 	szBlock.z = 1;
 
-	szGrid.x = (nObj + szBlock.x*rowPerThread - 1) / (szBlock.x*rowPerThread); 
-	szGrid.y = (nDim + szBlock.y*colPerThread - 1) / (szBlock.y*colPerThread);	
+	szGrid.x = (numObjs + szBlock.x*rowPerThread - 1) / (szBlock.x*rowPerThread); 
+	szGrid.y = (numDims + szBlock.y*colPerThread - 1) / (szBlock.y*colPerThread);	
 	szGrid.z = 1;
 
 	/*Setup threads 4 compute_distance*/
 	 dim3 szGrid1, szBlock1;
-	szBlock1.x = (nObj < 64)?nObj:32;		printf("bx %d",szBlock1.x);
-	szBlock1.y = (nClus < 16)?nClus:16;		printf("by %d",szBlock1.y);
+	szBlock1.x = (numObjs < 64)?numObjs:32;		printf("bx %d",szBlock1.x);
+	szBlock1.y = (numClusters < 16)?numClusters:16;		printf("by %d",szBlock1.y);
 	szBlock1.z = 1;
 
-	szGrid1.x = (nObj + szBlock1.x - 1) / (szBlock1.x);   //printf("gx %d",szGrid.x);
-	szGrid1.y = (nClus + szBlock1.y - 1) / (szBlock1.y);	 //printf("gy %d",szGrid.y);
+	szGrid1.x = (numObjs + szBlock1.x - 1) / (szBlock1.x);   //printf("gx %d",szGrid.x);
+	szGrid1.y = (numClusters + szBlock1.y - 1) / (szBlock1.y);	 //printf("gy %d",szGrid.y);
 	szGrid1.z = 1;
-	unsigned int compute_distance_sharedMemSize = numClusters * nDim * sizeof(float);
+	unsigned int compute_distance_sharedMemSize = numClusters * numDims * sizeof(float);
 	//getchar();
 	/*Setup threads 4 compute_distance2*/
 	const int BLOCK_SIZE = 16;
 	dim3 block(BLOCK_SIZE,BLOCK_SIZE);
-	unsigned int gridDimx = (unsigned int)ceil((nObj / (float)BLOCK_SIZE)); printf("Gx %d ",gridDimx);
-	unsigned int gridDimy = (unsigned int)ceil((nClus / (float)BLOCK_SIZE)); printf("Gx %d ",gridDimy);
+	unsigned int gridDimx = (unsigned int)ceil((numObjs / (float)BLOCK_SIZE)); printf("Gx %d ",gridDimx);
+	unsigned int gridDimy = (unsigned int)ceil((numClusters / (float)BLOCK_SIZE)); printf("Gx %d ",gridDimy);
 
 	dim3 grid(gridDimx,gridDimy);
     do
     {
 		loop+=1;
-		compute_distance_v2<BLOCK_SIZE><<<grid,block>>>(nObj,nClus,nDim,d_Data,d_Cluster,d_Distance);
+		compute_distance_v2<BLOCK_SIZE><<<grid,block>>>(numObjs,numClusters,numDims,d_Data,d_Cluster,d_Distance);
 		//compute_distance<<<szGrid1,szBlock1>>>(nObj,nClus,nDim,d_Data,d_Cluster,d_Distance);
         //checkCudaErrors(cudaDeviceSynchronize());
         //checkCudaErrors(cudaGetLastError());
@@ -385,46 +347,40 @@ int kMeans(
     return (loop + 1);
 }
 
-
-
-
-
 float* callkMeans(float* h_Data, int nObjs, int nDims, int nCluster, int*& h_Member)
 {
     float* d_Data, *d_Cluster, *h_Cluster;
-	checkCudaErrors(cudaMalloc((void**)&d_Data, nObjs*nDim*sizeof(float)));						//Malloc d_data
-	checkCudaErrors(cudaMalloc((void**)&d_Cluster, nClus*nDim*sizeof(float)));					//Malloc d_cluster
 
-	checkCudaErrors(cudaMemcpy(d_Data, h_Data, nObjs*nDim*sizeof(float), cudaMemcpyHostToDevice));//copy h_data to d_data
-    
-	//h_Member	= (int*)malloc(nObj*sizeof(int));             //malloc h_member
-	checkCudaErrors(cudaMallocHost(&h_Member, nObj*sizeof(float), cudaHostAllocDefault));
+	checkCudaErrors(cudaMalloc((void**)&d_Data, nObjs*nDims*sizeof(float)));						//Malloc d_data
+	checkCudaErrors(cudaMalloc((void**)&d_Cluster, nCluster*nDims*sizeof(float)));					//Malloc d_cluster
 
-	//h_Cluster	= (float*)malloc(nClus*nDim*sizeof(float));		//malloc h_cluster
-	checkCudaErrors(cudaMallocHost(&h_Cluster, nClus*nDim*sizeof(float), cudaHostAllocDefault));
+	checkCudaErrors(cudaMallocHost(&h_Member, nObjs*sizeof(float), cudaHostAllocDefault));
+	checkCudaErrors(cudaMallocHost(&h_Cluster, nCluster*nDims*sizeof(float), cudaHostAllocDefault));
+	checkCudaErrors(cudaMemcpy(d_Data, h_Data, nObjs*nDims*sizeof(float), cudaMemcpyHostToDevice));//copy h_data to d_data
+
 	//init h_member
-	for (int i=0; i<nObj; i++) 
+	for (int i=0; i<nObjs; i++) 
 	{
-		if(i<nClus) h_Member[i] = i;
+		if(i<nCluster) h_Member[i] = i;
 		else h_Member[i] = -1;
 	}
 	//init d_cluster
-	float* tempCluste = (float*)malloc(sizeof(float)*nClus*nDim);
+	float* tempCluste = (float*)malloc(sizeof(float)*nCluster*nDims);
 
-	for(int i = 0; i< nClus; i++)
+	for(int i = 0; i< nCluster; i++)
 	{
-		for(int j = 0; j< nDim; j++)
+		for(int j = 0; j< nDims; j++)
 		{
-			tempCluste[i*nDim + j] = h_Data[i*nDim +j];
+			tempCluste[i*nDims + j] = h_Data[i*nDims +j];
 		}
 	}
-	checkCudaErrors(cudaMemcpy(d_Cluster, tempCluste, nClus*nDim*sizeof(float), cudaMemcpyHostToDevice));//copy h_data to d_data
+	checkCudaErrors(cudaMemcpy(d_Cluster, tempCluste, nCluster*nDims*sizeof(float), cudaMemcpyHostToDevice));//copy h_data to d_data
 	free(tempCluste);
 
-    kMeans(d_Data, nDim, nObjs, nClus, 0, 5000, h_Member, d_Cluster);
+    kMeans(d_Data, nDims, nObjs, nCluster, 0, 5000, h_Member, d_Cluster);
 
     
-	checkCudaErrors(cudaMemcpy(h_Cluster, d_Cluster, nClus*nDim*sizeof(float), cudaMemcpyDeviceToHost));/*copy cluster centroid*/
+	checkCudaErrors(cudaMemcpy(h_Cluster, d_Cluster, nCluster*nDims*sizeof(float), cudaMemcpyDeviceToHost));/*copy cluster centroid*/
 
     //Free device memory
 	checkCudaErrors(cudaFree(d_Data));
@@ -433,33 +389,33 @@ float* callkMeans(float* h_Data, int nObjs, int nDims, int nCluster, int*& h_Mem
 	return h_Cluster;// return the centroid
 }
 
-void test()
+void test(int nO,int nD, int nC)
 {
-	if((nObj < nClus)) 
+	if((nO < nC)) 
 	{
 		printf("Error: numObject < nCluster \n");
 		return;
 	}
-    float	*dataCm = TestClass::initData(nObj, nDim);								/*init data*/
+    float	*dataCm = TestClass::initData(nO, nD);								/*init data*/
     int		*members;
     float	*clusters;
 
 	clock_t begin = clock();														/*get time*/
-	clusters = callkMeans(dataCm, nObj, nDim, nClus, members);						/*call KMeans CUDA*/
+	clusters = callkMeans(dataCm, nO, nD, nC, members);						/*call KMeans CUDA*/
 	double elapsed_secs_1 = double(clock() - begin) / CLOCKS_PER_SEC;				/*get time*/
-	cout<<nObj<<"x"<<nDim<<"  Cluster :"<<nClus<<endl;
-	std::cout << "callkMeans CUDA: " << elapsed_secs_1 << " msecs" << std::endl;   
+	cout<<nO<<"x"<<nD<<"  Cluster :"<<nC<<endl;
+	std::cout << "callkMeans CUDA: " << elapsed_secs_1 << " secs" << std::endl;   
 
 
 	begin = clock();															
-    KMean* cpu_kmeans = new KMean(dataCm,nObj,nDim,nClus,5000);						
+    KMean* cpu_kmeans = new KMean(dataCm,nO,nD,nC,5000);						
     double elapsed_secs_2 = double(clock() - begin) / CLOCKS_PER_SEC;				
-    std::cout << "callkMeans CPU: " << elapsed_secs_2 << " msecs" << std::endl;
+    std::cout << "callkMeans CPU: " << elapsed_secs_2 << " secs" << std::endl;
 
 	cout<<"Speed up: "<<elapsed_secs_2/elapsed_secs_1<<endl;
 	
 	printf("Checking result\n");
-	if(TestClass::CheckResult(cpu_kmeans->get_member(),members,nObj,nClus,nDim))
+	if(TestClass::CheckResult(cpu_kmeans->get_member(),members,nO,nC,nD))
 	{
 		printf("Pass\n");
 	}
@@ -468,17 +424,42 @@ void test()
 	checkCudaErrors(cudaFreeHost(members));
 	checkCudaErrors(cudaFreeHost(clusters));
     checkCudaErrors(cudaFreeHost(dataCm));
-
-	//cudaDeviceReset must be called before exiting in order for profiling and
-	//tracing tools such as Nsight and Visual Profiler to show complete traces.
 	checkCudaErrors(cudaDeviceReset());
 }
 
 
 int main(int argc, char** argv)
 {
+	printf("K-Means");
 	srand(time(NULL));		//init for rand baseon curr time
-    test();					//Call the test
+	checkCudaErrors(cudaSetDevice(0));
+	UINT no = 0,nd = 0,nc = 0;
+	if (checkCmdLineFlag(argc, (const char **)argv, "no"))
+    {
+        no = getCmdLineArgumentInt(argc, (const char **)argv, "no");
+    }
+	else
+	{
+		no = nObj;
+	}
+	if (checkCmdLineFlag(argc, (const char **)argv, "nd"))
+    {
+        nd = getCmdLineArgumentInt(argc, (const char **)argv, "nd");
+    }
+	else
+	{
+		nd = nDim;
+	}
+
+	if (checkCmdLineFlag(argc, (const char **)argv, "nc"))
+    {
+        nc = getCmdLineArgumentInt(argc, (const char **)argv, "nc");
+    }
+	else
+	{
+		nc = nClus;
+	}
+    test(no,nd,nc);					//Call the test
 	printf("Done");
 	getchar();
     return 0;

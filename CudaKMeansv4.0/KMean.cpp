@@ -35,10 +35,8 @@ void KMean::run(float * data)
 	}
 	f_centroid = new float[n_cluster*n_dim*sizeof(float)];
 	i_member   = new int[n_object*sizeof(int)];
-	clock_t begin = clock();
-	Process();//
-	double elapsed_secs = double(clock() - begin) / CLOCKS_PER_SEC;
-	std::cout << "CPU KMeans process time: " << elapsed_secs << " secs" << std::endl;
+	Process();
+
 }
 KMean::~KMean(void)
 {

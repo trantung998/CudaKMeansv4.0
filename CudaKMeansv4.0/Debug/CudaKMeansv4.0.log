@@ -1,33 +1,31 @@
-﻿Build started 5/22/2014 2:13:34 PM.
-     1>Project "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\CudaKMeansv4.0.vcxproj" on node 2 (Build target(s)).
+﻿Build started 5/30/2014 2:16:59 PM.
+     1>Project "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\CudaKMeansv4.0.vcxproj" on node 2 (Build target(s)).
      1>AddCudaCompileDeps:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I. /FIcuda_runtime.h /c "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\kernel.cu" 
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" /I. /FIcuda_runtime.h /c "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\kernel.cu" 
        CudaBuild:
          Compiling CUDA source file kernel.cu...
-         cmd.exe /C "C:\Users\Tran\AppData\Local\Temp\tmp10d2c67cc20b4ddabb075f03be85d11f.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\kernel.cu"
+         cmd.exe /C "C:\Users\Tran\AppData\Local\Temp\tmp2e17fa4eb9fe44cfaecb6f989c44618b.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\kernel.cu"
          
-         C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\kernel.cu" 
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(332): warning : variable "compute_distance_sharedMemSize" was declared but never referenced
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(443): warning : dynamic initialization in unreachable code
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(332): warning : variable "compute_distance_sharedMemSize" was declared but never referenced
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(443): warning : dynamic initialization in unreachable code
-     1>C:/Users/Tran/documents/visual studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(480): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+         C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\kernel.cu.obj "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\kernel.cu" 
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(319): warning : variable "compute_distance_sharedMemSize" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(319): warning : variable "compute_distance_sharedMemSize" was declared but never referenced
+     1>C:/Users/Tran/Documents/Visual Studio 2012/Projects/CudaKMeansv4.0/CudaKMeansv4.0/kernel.cu(459): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.lib" /MACHINE:X86 Debug\kernel.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.lib" /MACHINE:X86 Debug\kernel.cu.obj
          Debug\KMean.obj
          Debug\TestClass.obj
-         CudaKMeansv4.0.vcxproj -> C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.exe
+         CudaKMeansv4.0.vcxproj -> C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\CudaKMeansv4.0.exe
        PostBuildEvent:
-         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\"
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
          :VCEnd
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\Debug\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart*.dll" "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\Debug\"
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart32_55.dll
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\bin\cudart64_55.dll
                  2 file(s) copied.
-     1>Done Building Project "C:\Users\Tran\documents\visual studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\CudaKMeansv4.0.vcxproj" (Build target(s)).
+     1>Done Building Project "C:\Users\Tran\Documents\Visual Studio 2012\Projects\CudaKMeansv4.0\CudaKMeansv4.0\CudaKMeansv4.0.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:22.71
+Time Elapsed 00:00:21.08
