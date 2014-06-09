@@ -11,20 +11,17 @@
 #include <math_functions.h>
 #include <cstdlib>
 
+__constant__ float filter_constant[256];
 //Test github cai
 //test phat nuaw
-#define IMUL(a,b) __mul24(a,b)
 typedef struct{
 	UCHAR *r;
 	UCHAR *g;
 	UCHAR *b;
 }imageData;
 
-__constant__ float cst_ptr [9];
-
 using namespace std;
 using namespace cimg_library;
-#define PI 3.14
 
 __global__ void gray_kernel(UCHAR *red, UCHAR *green, UCHAR *blue
 					 ,UCHAR *gray_image, UINT w, UINT h
@@ -44,25 +41,24 @@ __global__ void filter(imageData scr, imageData des, float *_filter,
 	int tx = blockDim.x * blockIdx.x + threadIdx.x;
 	int ty = blockDim.y * blockIdx.y + threadIdx.y;
 	int index = tx*h+ty;
-	if(index < w*h)
+	if(tx < w && ty< h)
 	{
-		UCHAR r = 0, g = 0, b = 0;
-
+		float r = 0, g = 0, b = 0;
 		for(int i = 0; i< filterSIZE; i++)
 		{
 			for(int j = 0; j < filterSIZE ; j++)
 			{
 				int imgX = (tx - filterSIZE/2 + i + w)% w;
-				int imgY = (ty - filterSIZE/2 + i + h)% h;
-				r += scr.r[imgX*h + imgY]* _filter[i*filterSIZE + j];
-				g += scr.g[imgX*h + imgY]* _filter[i*filterSIZE + j];
-				b += scr.b[imgX*h + imgY]* _filter[i*filterSIZE + j];
+				int imgY = (ty - filterSIZE/2 + j + h)% h;
+				r += scr.r[imgX*h + imgY]* filter_constant[j*filterSIZE + i];
+				g += scr.g[imgX*h + imgY]* filter_constant[j*filterSIZE + i];
+				b += scr.b[imgX*h + imgY]* filter_constant[j*filterSIZE + i];
 			}
 		}
 
-		des.r[index] = min(max(int(factor * r + bias), 0), 255); 
-		des.g[index] = min(max(int(factor * g + bias), 0), 255); 
-		des.b[index] = min(max(int(factor * b + bias), 0), 255); 
+		des.r[index] = (UCHAR)min(max(int(factor * r + bias), 0), 255); 
+		des.g[index] = (UCHAR)min(max(int(factor * g + bias), 0), 255); 
+		des.b[index] = (UCHAR)min(max(int(factor * b + bias), 0), 255); 
 	}
 }
 void call_kernel(imageData data,UINT w,UINT h)
@@ -103,10 +99,9 @@ void call_kernel(imageData data,UINT w,UINT h)
 	}
 	result.display("GrayScale");
 }
-void call_kernel_filter(imageData data,UINT w,UINT h, UINT filterSize)
+void call_kernel_filter(imageData data,UINT w,UINT h, UINT filterSize, float* filter_matrix, float bias, float factor)
 {
 	imageData d_Data, d_Result;
-	
 	float *d_filter;
 	//Malloc memory
 	checkCudaErrors(cudaMalloc((void**)&d_Data.r, w*h));
@@ -124,12 +119,11 @@ void call_kernel_filter(imageData data,UINT w,UINT h, UINT filterSize)
 	checkCudaErrors(cudaMemcpy(d_Data.g,data.g,w*h,cudaMemcpyHostToDevice));
 	checkCudaErrors(cudaMemcpy(d_Data.b,data.b,w*h,cudaMemcpyHostToDevice));
 	
-	checkCudaErrors(cudaMemcpy(d_filter,filter_find_edgs,filterSize*filterSize*sizeof(float),cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy(d_filter,filter_matrix,filterSize*filterSize*sizeof(float),cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpyToSymbol (filter_constant, filter_matrix, filterSize*filterSize*sizeof(float) ));
 
-	dim3 block(32,32);
-	dim3 grid(ceil((float)w/32),ceil((float)h/32));
-	float factor = 1.0;
-	float bias = 0.0;
+	dim3 block(16,16);
+	dim3 grid(ceil((float)w/16),ceil((float)h/16));
 	clock_t begin = clock();
 	filter<<<grid,block>>>(d_Data,d_Result,d_filter,w,h,
 		filterSize,factor,bias);
@@ -146,20 +140,19 @@ void call_kernel_filter(imageData data,UINT w,UINT h, UINT filterSize)
 	checkCudaErrors(cudaMemcpy(h_Result.g,d_Result.g,w*h,cudaMemcpyDeviceToHost));
 	checkCudaErrors(cudaMemcpy(h_Result.b,d_Result.b,w*h,cudaMemcpyDeviceToHost));
 	//show result
-	//CImg<UCHAR> result(w,h,1,3);
-	//for(int i=0;i<w;i++){
-	//	for(int j=0;j<h;j++){
-	//		result(i,j,0,0) = h_Result.r[i*h + j];	
-	//		result(i,j,0,1) = h_Result.g[i*h + j];
-	//		result(i,j,0,2) = h_Result.b[i*h + j];
-	//	}
-	//}
-	//result.display("GrayScale");
+	CImg<UCHAR> result(w,h,1,3);
+	for(int i=0;i<w;i++){
+		for(int j=0;j<h;j++){
+			result(i,j,0,0) = h_Result.r[i*h + j];	
+			result(i,j,0,1) = h_Result.g[i*h + j];
+			result(i,j,0,2) = h_Result.b[i*h + j];
+		}
+	}
+	result.display("GrayScale");
 	
 }
-CImg<UCHAR> host_filter(imageData data, UINT w, UINT h, UINT filterSize, float* filterm )
+CImg<UCHAR> host_filter(imageData data, UINT w, UINT h, UINT filterSize, float* filterm, float bias, float factor )
 {
-	float factor = 1.0, bias = 0;
 	CImg<UCHAR> result(w,h,1,3);
 
 	for(int i = 0; i<w; i++)
@@ -171,9 +164,9 @@ CImg<UCHAR> host_filter(imageData data, UINT w, UINT h, UINT filterSize, float* 
 				{
 					int x = (i - filterSize/2 + ix + w) % w;
 					int y = (j - filterSize/2 + iy + h) % h;
-					red		+= data.r[x*h+y]* filterm[ix*filterSize + iy];
-					green	+= data.g[x*h+y]* filterm[ix*filterSize + iy];
-					blue	+= data.b[x*h+y]* filterm[ix*filterSize + iy];
+					red		+= data.r[x*h+y]* filterm[iy*filterSize + ix];
+					green	+= data.g[x*h+y]* filterm[iy*filterSize + ix];
+					blue	+= data.b[x*h+y]* filterm[iy*filterSize + ix];
 				}
 				result(i,j,0,0) = (UCHAR)min(max(int(factor * red + bias), 0), 255); 
 				result(i,j,0,1) = (UCHAR)min(max(int(factor * green + bias), 0), 255); 
@@ -191,7 +184,7 @@ int main(int argc, char *argv[])
 	for (int i=0; i<argc; i++)
         cout << "Parameter " << i << " was " << argv[i] << "\n";
 
-	CImg<UCHAR> image("bigcat.jpg");
+	CImg<UCHAR> image("lena.jpg");
 	int width = image.width();
 	int height = image.height();
 	int depth = image.depth();
@@ -227,21 +220,23 @@ int main(int argc, char *argv[])
 			gray1(i,j,0,0) = (UCHAR)result[i*height +j];
 		}
 	}
-	//host_filter(h_image,width,height,5,filter_find_edgs);
+	filter_struct fs = filter::get_filter();
+	for(int i = 0 ; i < fs.filter_size; i++)
+	{
+		for(int j = 0; j< fs.filter_size; j++)
+		{
+			printf("%2.0f  ",fs.filter_matrix[i*fs.filter_size +j]);
+		}
+		printf("\n");
+	}
+
+	CImg<UCHAR> test = host_filter(h_image,width,height,fs.filter_size,fs.filter_matrix,fs.bias,fs.factor);
 	double elapsed_secs_1 = double(clock() - begin);	
 	std::cout << "elapsed time:  " << elapsed_secs_1 << " msecs" << std::endl; 
-	//CImg<UCHAR> hfilter = host_filter(h_image,width,height,5,filter_find_edgs);
 	//call_kernel(h_image,width,height);
-
-	call_kernel(h_image,width,height);
-	//call_kernel_filter(h_image,width,height,5);
-	//gray1.save("gray1.bmp");
-	//gray2.save("gray2.bmp");
- 
-	//show all images
-
-	//(gray1).display("original");
+	call_kernel_filter(h_image,width,height,fs.filter_size,fs.filter_matrix,fs.bias,fs.factor);
 	cudaDeviceReset();
+	test.display();
 	getchar();
   return 0;
 }

@@ -1,4 +1,3 @@
-//#include <stdio.h>
 #include <stdlib.h>
 #include <cmath>
 #include <iostream>
@@ -13,16 +12,14 @@
 #include "TestClass.h"
 #include "KMean.h"
 using namespace std;
-//size of data set
+//default value
 #define nObj		1024		
-#define nDim		1024	
-#define nClus   	1024
-#define RANGE       16
+#define nDim		256	
+#define nClus   	512
+
 /*
 	get the next pow of 2
-	reference in cuda reduction
-	
-	*Checked* Lv 3
+	(for reduction)
 */
 int nextPowerOfTwo(int n) {
     n--;
@@ -33,9 +30,8 @@ int nextPowerOfTwo(int n) {
     n = n >> 16 | n;
     return ++n;
 }
-
-__host__ __device__ 
-float euclid_distance(
+/*euclid distance*/
+__host__ __device__ float euclid_distance(
 					int  numDims,
                     int    numObjs,
                     int    numClusters,
@@ -50,7 +46,7 @@ float euclid_distance(
     for (i = 0; i < numDims; i++) 
 	{
 		ans += (d_Data[i + objectId*numDims] - d_Cluster[clusterId*numDims + i])*
-			   (d_Data[i + objectId*numDims] - d_Cluster[clusterId*numDims + i]); //distance
+			   (d_Data[i + objectId*numDims] - d_Cluster[clusterId*numDims + i]);
     }
     return(ans);
 }
@@ -63,52 +59,51 @@ __global__ static void compute_distance_v2(
 		float *d_Distance 
 		)
 {
+	/*get threadid, blockid*/
+	int tx = threadIdx.x;                       
+	int ty = threadIdx.y;
+
+	int bx = blockIdx.x;
+	int by = blockIdx.y;
+
+	/*get row, col of result matrix*/
+	int ROW = BLOCK_SIZE * bx + tx;
+	int COL = BLOCK_SIZE * by + ty;
+
+	int index = ROW*numClusters + COL;
+	/*init share memory*/
+	__shared__ float sA[BLOCK_SIZE][BLOCK_SIZE];
+	__shared__ float sB[BLOCK_SIZE][BLOCK_SIZE];
+
+	float sum = 0;
+	float tmp = 0;
+	int maxLoop  =  numDims/BLOCK_SIZE + 1;
+	/*loop*/
+	for(int m = 0 ; m < maxLoop; m++)
 	{
-		/*get threadid, blockid*/
-		int tx = threadIdx.x;                       
-		int ty = threadIdx.y;
-
-		int bx = blockIdx.x;
-		int by = blockIdx.y;
-
-		/*get row, col of result matrix*/
-		int ROW = BLOCK_SIZE * bx + tx;
-		int COL = BLOCK_SIZE * by + ty;
-
-		int index = ROW*numClusters + COL;
-		/*init share memory*/
-		__shared__ float sA[BLOCK_SIZE][BLOCK_SIZE];
-		__shared__ float sB[BLOCK_SIZE][BLOCK_SIZE];
-
-		float sum = 0;
-		float tmp = 0;
-		int maxLoop  =  numDims/BLOCK_SIZE + 1;
-		for(int m = 0 ; m < maxLoop; m++)
+		if ((ROW < numObj)&& (m*BLOCK_SIZE + ty)< numDims) 
 		{
-			if ((ROW < numObj)&& (m*BLOCK_SIZE + ty)< numDims) 
-			{
-				sA[tx][ty]  =  d_a[ROW*numDims +(BLOCK_SIZE*m + ty)];
-			}
-			else sA[tx][ty]  = 0;
-
-			if ((COL < numClusters )&& (m*BLOCK_SIZE + tx) < numDims) 
-			{
-				sB[tx][ty]  =  d_b[COL*numDims + (m*BLOCK_SIZE + tx)];
-			}
-			else sB[tx][ty]  = 0;
-			 __syncthreads();
-
-			 for(int k = 0 ; k < BLOCK_SIZE ; k++)
-			 {
-				 tmp = sA[tx][k] - sB[k][ty];
-				 sum += tmp*tmp;
-			 }
-			 __syncthreads();
+			sA[tx][ty]  =  d_a[ROW*numDims +(BLOCK_SIZE*m + ty)];
 		}
-		if(ROW < numObj && COL < numClusters)
+		else sA[tx][ty]  = 0;
+
+		if ((COL < numClusters )&& (m*BLOCK_SIZE + tx) < numDims) 
 		{
-			d_Distance[index] = sum;
+			sB[tx][ty]  =  d_b[COL*numDims + (m*BLOCK_SIZE + tx)];
 		}
+		else sB[tx][ty]  = 0;
+			__syncthreads();
+
+			for(int k = 0 ; k < BLOCK_SIZE ; k++)
+			{
+				tmp = sA[tx][k] - sB[k][ty];
+				sum += tmp*tmp;
+			}
+			__syncthreads();
+	}
+	if(ROW < numObj && COL < numClusters)
+	{
+		d_Distance[index] = sum;
 	}
 }
 
@@ -128,17 +123,17 @@ __global__ void compute_distance(
 
 }
 
-__global__
-void find_nearest_cluster(int	numDims,
+__global__ void find_nearest_cluster(int	numDims,
                           int	numObjs,
                           int	numClusters,   
 						  float *d_Distance,
                           int	*d_Member,          
                           int	*d_MemberChange)
 {
-    extern __shared__ char sharedMemory[];
-    unsigned char *membershipChanged	= (unsigned char *)sharedMemory;
-	 membershipChanged[threadIdx.x] = 0;
+	//init sharemem
+	extern __shared__ UCHAR sharedMemory[];
+	/*unsigned char *membershipChanged	= (unsigned char *)sharedMemory;*/
+	sharedMemory[threadIdx.x] = 0;
 	__syncthreads();
 
     int objectId = blockDim.x * blockIdx.x + threadIdx.x;
@@ -162,7 +157,7 @@ void find_nearest_cluster(int	numDims,
 		
 		if (d_Member[objectId] != index) 
 		{
-            membershipChanged[threadIdx.x]	= 1;
+            sharedMemory[threadIdx.x]	= 1;
         }
         d_Member[objectId]				= index;
         __syncthreads();
@@ -171,22 +166,21 @@ void find_nearest_cluster(int	numDims,
 		{
             if (threadIdx.x < s) 
 			{
-                membershipChanged[threadIdx.x] += membershipChanged[threadIdx.x + s];
+                sharedMemory[threadIdx.x] += sharedMemory[threadIdx.x + s];
             }
             __syncthreads();//  wait the sharedMemory
         }
 
-        if (threadIdx.x == 0) d_MemberChange[blockIdx.x] = membershipChanged[0]; //get the result
+        if (threadIdx.x == 0) d_MemberChange[blockIdx.x] = sharedMemory[0]; //get the result
         
     }
 }
-__global__
-void compute_change(int *deviceMemberChange,
+
+__global__ void compute_change(int *deviceMemberChange,
                    int	size,    //  size of deviceMemberChange
                    int	size2)   //  power of two
 {
-
-    extern __shared__ unsigned int shareMemory[];
+    extern __shared__ UINT shareMemory[];
     shareMemory[threadIdx.x] = (threadIdx.x < size) ? deviceMemberChange[threadIdx.x] : 0;
     __syncthreads();
 
@@ -198,22 +192,18 @@ void compute_change(int *deviceMemberChange,
     }
     if (threadIdx.x == 0) deviceMemberChange[0] = shareMemory[0];
 }
-__global__
-void update_cluster(float* d_Data		, int* d_Member		, float* d_Cluster
-                    , const int nCoords	, const int nObjs	, const int nClusters
-                    , const int rowPerThread, const int colPerThread)
-{
-    for (int cIdx = 0; cIdx < colPerThread; ++cIdx)
-    {
-        int c = cIdx * gridDim.y * blockDim.y + blockIdx.y * blockDim.y + threadIdx.y;
-		if (c >= nCoords)
-            break;
-        for (int rIdx = 0; rIdx < rowPerThread; ++rIdx)
-        {
-            int r = rIdx * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x;
-			if (r >= nClusters)
-                break;
 
+__global__ void update_cluster(
+						float* d_Data		, int* d_Member		, float* d_Cluster
+                    ,	const int nCoords	, const int nObjs	, const int nClusters)
+{
+
+	int c = blockIdx.y * blockDim.y + threadIdx.y;
+	if (c < nCoords)
+	{
+		int r =blockIdx.x * blockDim.x + threadIdx.x;
+		if (r < nClusters)
+		{
             float sumVal		= 0.0f;
             int clusterCount	= 0;
             for (int i = 0; i < nObjs; ++i)
@@ -226,11 +216,10 @@ void update_cluster(float* d_Data		, int* d_Member		, float* d_Cluster
             }
             if (clusterCount > 0)
 				d_Cluster[nCoords*r + c] = sumVal / clusterCount;
-        }
-    }
+		}	
+	}
 }
-
-int kMeans(
+void kMeans(
         float  *d_Data,			
         int     numDims,			
         int     numObjs,			
@@ -242,44 +231,32 @@ int kMeans(
 {
     int		 loop = 0;
     float    delta;          /* % of objects change their clusters */
-
     int		*d_Member;
     int		*d_MemberChange;
 	float   *d_Distance;
     
-	/*Setup thread 4 find_nearest_cluster */
+	checkCudaErrors(cudaMalloc((void**)&d_Member, numObjs*sizeof(int)));
+	checkCudaErrors(cudaMalloc((void**)&d_Distance, numObjs*numClusters*sizeof(float)));
+	/********* Setup thread 4 find_nearest_cluster ********/
 	unsigned int numThreadsPerClusterBlock		= 128;
-	unsigned int numClusterBlocks				=  (unsigned int)ceil((numObjs / (float)numThreadsPerClusterBlock));
-	unsigned int clusterBlockSharedDataSize =    numThreadsPerClusterBlock * sizeof(unsigned char) ;
+	unsigned int numClusterBlocks				= (unsigned int)ceil((numObjs / (float)numThreadsPerClusterBlock));
+	unsigned int clusterBlockSharedDataSize     = numThreadsPerClusterBlock * sizeof(unsigned char) ;
 	
-	cudaDeviceProp deviceProp;
-    int deviceNum;
-    cudaGetDevice(&deviceNum);
-    cudaGetDeviceProperties(&deviceProp, deviceNum);
-    if (clusterBlockSharedDataSize > deviceProp.sharedMemPerBlock) {
-		printf("%d , %d\n",clusterBlockSharedDataSize,deviceProp.sharedMemPerBlock);
-        printf("WARNING: CUDA hardware has insufficient block shared memory.\n");
-		exit(1);
-	}
-	/* Setup thread 4 compute_change */
+
+	/******* Setup thread 4 compute_change *******/
     unsigned int numReductionThreads			= nextPowerOfTwo(numClusterBlocks);
     unsigned int reductionBlockSharedDataSize	= numReductionThreads * sizeof(unsigned int);
-	checkCudaErrors(cudaMalloc((void**)&d_Member, numObjs*sizeof(int)));
 	checkCudaErrors(cudaMalloc((void**)&d_MemberChange, numReductionThreads*sizeof(unsigned int)));
-	checkCudaErrors(cudaMalloc((void**)&d_Distance, numObjs*numClusters*sizeof(float)));
 
 	checkCudaErrors(cudaMemcpy(d_Member, h_Member, numObjs*sizeof(int), cudaMemcpyHostToDevice));
     dim3 szGrid, szBlock;
-    int rowPerThread , colPerThread;
-	rowPerThread = 1;
-	colPerThread = 1;
 	
 	szBlock.x = (numObjs < 32)?numObjs:32;	
 	szBlock.y = (numDims<16)?numDims:16;		
 	szBlock.z = 1;
 
-	szGrid.x = (numObjs + szBlock.x*rowPerThread - 1) / (szBlock.x*rowPerThread); 
-	szGrid.y = (numDims + szBlock.y*colPerThread - 1) / (szBlock.y*colPerThread);	
+	szGrid.x = (numObjs + szBlock.x - 1) / (szBlock.x); 
+	szGrid.y = (numDims + szBlock.y - 1) / (szBlock.y);	
 	szGrid.z = 1;
 
 	/*Setup threads 4 compute_distance*/
@@ -325,7 +302,7 @@ int kMeans(
 
 		update_cluster <<< szGrid, szBlock >>> (
 			d_Data, d_Member
-			, d_Cluster, numDims, numObjs, numClusters, rowPerThread, colPerThread);
+			, d_Cluster, numDims, numObjs, numClusters);
 
 
         int d;
@@ -335,16 +312,15 @@ int kMeans(
 		//std::cout<<"Test delta"<<delta<<std::endl;
     } 
     while (delta > threshold && loop < maxLoop);
+
 	checkCudaErrors(cudaDeviceSynchronize());
 	checkCudaErrors(cudaGetLastError());
 
-	checkCudaErrors(cudaMemcpy(h_Member, d_Member, 
-              numObjs*sizeof(int), cudaMemcpyDeviceToHost));
-
+	checkCudaErrors(cudaMemcpy(h_Member, d_Member, numObjs*sizeof(int), cudaMemcpyDeviceToHost));
+	/***** Free Memory *****/
 	checkCudaErrors(cudaFree(d_Member));
 	checkCudaErrors(cudaFree(d_MemberChange));
 	printf("Loop %d \n",loop);
-    return (loop + 1);
 }
 
 float* callkMeans(float* h_Data, int nObjs, int nDims, int nCluster, int*& h_Member)
@@ -378,15 +354,12 @@ float* callkMeans(float* h_Data, int nObjs, int nDims, int nCluster, int*& h_Mem
 	free(tempCluste);
 
     kMeans(d_Data, nDims, nObjs, nCluster, 0, 5000, h_Member, d_Cluster);
-
-    
 	checkCudaErrors(cudaMemcpy(h_Cluster, d_Cluster, nCluster*nDims*sizeof(float), cudaMemcpyDeviceToHost));/*copy cluster centroid*/
 
-    //Free device memory
+    /**** Free device memory ****/
 	checkCudaErrors(cudaFree(d_Data));
 	checkCudaErrors(cudaFree(d_Cluster));
-
-	return h_Cluster;// return the centroid
+	return h_Cluster;
 }
 
 void test(int nO,int nD, int nC)
@@ -399,28 +372,30 @@ void test(int nO,int nD, int nC)
     float	*dataCm = TestClass::initData(nO, nD);								/*init data*/
     int		*members;
     float	*clusters;
+	/******* CUDA *******/
+	clock_t begin			= clock();														/*get time*/
+	clusters				= callkMeans(dataCm, nO, nD, nC, members);						/*call KMeans CUDA*/
+	double elapsed_secs_1	= double(clock() - begin) / CLOCKS_PER_SEC;				/*get time*/
 
-	clock_t begin = clock();														/*get time*/
-	clusters = callkMeans(dataCm, nO, nD, nC, members);						/*call KMeans CUDA*/
-	double elapsed_secs_1 = double(clock() - begin) / CLOCKS_PER_SEC;				/*get time*/
 	cout<<nO<<"x"<<nD<<"  Cluster :"<<nC<<endl;
-	std::cout << "callkMeans CUDA: " << elapsed_secs_1 << " secs" << std::endl;   
+	std::cout <<"callkMeans CUDA: "<< elapsed_secs_1 <<" secs"<< std::endl;  
 
-
+	/******** CPU ********/
 	begin = clock();															
     KMean* cpu_kmeans = new KMean(dataCm,nO,nD,nC,5000);						
     double elapsed_secs_2 = double(clock() - begin) / CLOCKS_PER_SEC;				
     std::cout << "callkMeans CPU: " << elapsed_secs_2 << " secs" << std::endl;
 
-	cout<<"Speed up: "<<elapsed_secs_2/elapsed_secs_1<<endl;
-	
+	/********* Check result ********/
 	printf("Checking result\n");
 	if(TestClass::CheckResult(cpu_kmeans->get_member(),members,nO,nC,nD))
 	{
 		printf("Pass\n");
 	}
 	else printf("Fail\n");
+	cout<<"Speed up: "<<elapsed_secs_2/elapsed_secs_1<<endl;
 
+	/******** Free memory & reset device ******/
 	checkCudaErrors(cudaFreeHost(members));
 	checkCudaErrors(cudaFreeHost(clusters));
     checkCudaErrors(cudaFreeHost(dataCm));
@@ -434,6 +409,8 @@ int main(int argc, char** argv)
 	srand(time(NULL));		//init for rand baseon curr time
 	checkCudaErrors(cudaSetDevice(0));
 	UINT no = 0,nd = 0,nc = 0;
+
+	/**** Get object, dim, cluster ***/
 	if (checkCmdLineFlag(argc, (const char **)argv, "no"))
     {
         no = getCmdLineArgumentInt(argc, (const char **)argv, "no");
@@ -459,8 +436,9 @@ int main(int argc, char** argv)
 	{
 		nc = nClus;
 	}
-    test(no,nd,nc);					//Call the test
+
+	/**** go test ****/
+    test(no,nd,nc);
 	printf("Done");
-	getchar();
     return 0;
 }
